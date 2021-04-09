@@ -1,8 +1,8 @@
 import './App.css';
-import socket from './utils/socket';
-import Login from './components/Login';
-import Chat from './components/Chat';
-import mainApi from './utils/Api';
+import socket from '../../utils/socket';
+import Login from '../Login/Login';
+import Chat from '../Chat/Chat';
+import mainApi from '../../utils/Api';
 import {useState, useEffect} from "react";
 import {BrowserRouter as Router, Route} from 'react-router-dom';
 
@@ -41,11 +41,6 @@ function App() {
             })
     }
 
-    useEffect(() => {
-        socket.on('ROOM:SET_USERS', users => {
-            setUsers([...users])
-        })
-    }, [])
 
 
     return (
