@@ -1,103 +1,70 @@
 import {useState, useEffect} from "react";
 import queryString from "query-string";
-import io from "socket.io-client";
-import './Chat.css';
+import socket from "../../utils/socket";
+import "./Chat.css";
+import Info from "../Info/Info";
+import Messages from "../Messages/Messages";
+import Input from "../Input/Input";
+import { useHistory } from "react-router-dom";
 
-const ENDPOINT = 'localhost:8000';
+function Chat({ loggedIn }) {
 
-let socket;
-
-function Chat({location}) {
     const [currentUser, setCurrentUser] = useState('');
     const [currentRoom, setCurrentRoom] = useState('');
     const [users, setUsers] = useState('');
     const [message, setMessage] = useState([]);
     const [messages, setMessages] = useState([]);
 
+    let history = useHistory();
+
     useEffect(() => {
-        const {name, room} = queryString.parse(location.search);
+        // проверяем логин, если не залогинен , то перекидываем на начальную страницу сохраняя параметр room в урле
+        if(!loggedIn) {
+            const { room } = queryString.parse(window.location.search);
+            history.push(`/?room=${room}`);
+        } else {
 
-        socket = io(ENDPOINT);
+            const {name, room} = queryString.parse(window.location.search);
 
-        setCurrentUser(name);
-        setCurrentRoom(room);
+            setCurrentRoom(room);
+            setCurrentUser(name);
 
-        socket.emit('join', {name, room}, (error) => {
-            if(error) {
-                alert(error);
-            }
-        },[ENDPOINT, location.search]);
+            socket.emit('join', {name, room}, (error) => {
+                // если ошибка то показываем ее в алерте и перекидываем пользователя на начальную страницу
+                if (error) {
+                    alert(error);
+                    const { room } = queryString.parse(window.location.search);
+                    history.push(`/?room=${room}`);
+                }
+            });
 
-        return () => {
-            socket.emit('disconnect');
-            socket.off();
+            socket.on('message', message => {
+                setMessages(messages => [...messages, message]);
+            });
+
+            socket.on("roomData", ({users}) => {
+                setUsers(users);
+            });
         }
-    }, [ENDPOINT, location.search]);
-
-    useEffect(() => {
-        socket.on('message', (message) => {
-            setMessages([...messages, message]);
-        });
-
-        socket.on("roomData", ({ users }) => {
-            setUsers(users);
-        });
     }, []);
 
-    function sendMessage(e) {
-        e.preventDefault();
-        if(message) {
+    const sendMessage = (event) => {
+        event.preventDefault();
+
+        if (message) {
             socket.emit('sendMessage', message, () => setMessage(''));
+            setMessage('');
         }
-    }
-
-    function handleMessageInput(e) {
-        setMessage(e.target.value);
-    }
-
-    function handleEnterSubmit(e) {
-        e.key === 'Enter' && sendMessage(e)
     }
 
     return (
-        <div className="chat">
-            <div className="chat__users">
-                <b>Online ():</b>
-                <ul>
-
-                </ul>
+        <>
+            <div className="chat">
+                <Info room={currentRoom}/>
+                <Messages messages={messages} name={currentUser}/>
+                <Input message={message} setMessage={setMessage} sendMessage={sendMessage}/>
             </div>
-            <div className="chat__messages">
-                <div className="messages">
-                    <div className="message">
-                        <p>Lorem Ipsulum</p>
-                        <div>
-                            <span>test user</span>
-                        </div>
-                    </div>
-                </div>
-                <div className="messages">
-                    <div className="message">
-                        <p>Lorem Ipsulum</p>
-                        <div>
-                            <span>test user</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <form action="">
-                <textarea
-                    className="chat__textarea"
-                    onChange={handleMessageInput}
-                    onKeyPress={handleEnterSubmit}
-                />
-
-
-                <button type="button" className="btn btn-primary">
-                    Send
-                </button>
-            </form>
-        </div>
+        </>
     )
 }
 

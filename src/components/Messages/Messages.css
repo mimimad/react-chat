@@ -1,0 +1,22 @@
+.messages {
+    padding: 5% 0;
+    overflow: auto;
+    flex: auto;
+    scrollbar-width: thin;          /* "auto" or "thin" */
+    scrollbar-color: #2979FF transparent;   /* scroll thumb and track */
+}
+
+/*кастомизация скролл бара*/
+
+.messages::-webkit-scrollbar {
+    width: 5px; /* width of the entire scrollbar */
+}
+
+.messages::-webkit-scrollbar-track {
+    background: transparent; /* color of the tracking area */
+}
+
+.messages::-webkit-scrollbar-thumb {
+    background-color: #2979FF;    /* color of the scroll thumb */
+    border-radius: 10px;       /* roundness of the scroll thumb */
+}

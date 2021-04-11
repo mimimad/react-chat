@@ -1,3 +1,3 @@
-export const CONFIG_API = {
+export const CONFIG = {
     baseUrl: 'http://localhost:8000',
 }
