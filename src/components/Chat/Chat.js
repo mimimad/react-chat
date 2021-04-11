@@ -45,6 +45,12 @@ function Chat({ loggedIn }) {
             socket.on("roomData", ({users}) => {
                 setUsers(users);
             });
+
+            socket.on("connect_error", (err) => {
+                console.log(err.message);
+                const { room } = queryString.parse(window.location.search);
+                history.push(`/?room=${room}`);
+            });
         }
     }, []);
 
