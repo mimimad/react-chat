@@ -11,7 +11,7 @@ function Chat({ loggedIn }) {
 
     const [currentUser, setCurrentUser] = useState('');
     const [currentRoom, setCurrentRoom] = useState('');
-    const [users, setUsers] = useState('');
+    const [users, setUsers] = useState([]);
     const [message, setMessage] = useState([]);
     const [messages, setMessages] = useState([]);
 
@@ -66,7 +66,7 @@ function Chat({ loggedIn }) {
     return (
         <>
             <div className="chat">
-                <Info room={currentRoom}/>
+                <Info room={currentRoom} users={users}/>
                 <Messages messages={messages} name={currentUser}/>
                 <Input message={message} setMessage={setMessage} sendMessage={sendMessage}/>
             </div>
